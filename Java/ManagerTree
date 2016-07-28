@@ -1,0 +1,154 @@
+package com.albourne.swing.dialog;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang.StringUtils;
+
+public class TestExample {
+
+	/*
+	 * Skyscanner
+	 * You are given as input on stdin the number of employees in a company and
+	 * their direct line management relations between each other. Each person in
+	 * the company can directly line-manage maximum 2 other employees. The input
+	 * from stdin has the following format: 1. on the first line, the number of
+	 * employees 2. on the subsequent lines, the line management relations in
+	 * the format «EmployeeM EmployeeN» - meaning EmployeeM manages EmployeeN
+	 * (names are without spaces and spaces are used to separate the two names).
+	 * The input is correct (there are only direct management relations, no
+	 * cycles). For simplicity, the first line after the number of employees
+	 * always contains the manager at the top of the hierarchy. Write a program
+	 * that reads the input file and then prints out the employees per level, in
+	 * order of their importance (i.e. hierarchy):
+	Example:
+
+Input:
+6
+Jon Mark
+Jon David
+Mark Paul
+Paul Lee
+Paul Steve
+
+Output:
+Jon
+Mark David
+Paul
+Lee Steve
+
+Input:
+7
+Jon Lee
+Lee Paul
+Paul Mark
+Paul David
+Lee Steve
+Steve Mat
+
+Output:
+Jon
+Lee
+Paul Steve
+Mark David Mat
+
+	 */
+
+	public static void main(String[] args) {
+		TestExample example = new TestExample();
+	}
+
+	class Manager {
+		private final String managerName_;
+		private Manager employee1_;
+		private Manager employee2_;
+
+		public Manager(String manager) {
+			managerName_ = manager;
+		}
+
+		public void addEmployee(Manager employee) {
+			if (employee1_ == null)
+				employee1_ = employee;
+			else if (employee2_ == null)
+				employee2_ = employee;
+		}
+
+		public String getManagerName() {
+			return managerName_;
+		}
+
+		@Override
+		public String toString() {
+			if (StringUtils.isBlank(managerName_))
+				return "No Manager Defined";
+			if (employee1_ == null && employee2_ == null)
+				return "";
+
+			// Using a string buffer to be more cost effective on multiple
+			// employees.
+
+			StringBuffer buffer = new StringBuffer();
+			if (employee1_ != null)
+				buffer.append(employee1_.getManagerName()).append(" ");
+			if (employee2_ != null)
+				buffer.append(employee2_.getManagerName()).append(" ");
+			// TODO Cant seem to figure out how not to split it on the toString 
+			buffer.append("\n");
+
+			if (employee1_ != null)
+				buffer.append(employee1_);
+			if (employee2_ != null)
+				buffer.append(employee2_);
+
+			return buffer.toString();
+		}
+
+		public void prettyPrint() {
+			System.out.println(managerName_);
+			System.out.println(toString());
+		}
+
+	}
+
+	private TestExample() {
+		try {
+			BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+			String inputLine;
+
+			while ((inputLine = in.readLine()) != null && inputLine.length() > 0) {
+				int numberOfEmployees = Integer.parseInt(inputLine.trim());
+				List<Manager> managers = new ArrayList<>();
+				for (int count = 1; count < numberOfEmployees; count++) {
+					inputLine = in.readLine();
+					String[] namesInLine = inputLine.split(" ");
+					String managerName = namesInLine[0];
+					String employeeName = namesInLine[1];
+
+					Manager manager = getOrCreateManager(managers, managerName);
+					Manager employee = getOrCreateManager(managers, employeeName);
+					manager.addEmployee(employee);
+					managers.add(manager);
+					managers.add(employee);
+				}
+
+				managers.get(0).prettyPrint();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private Manager getOrCreateManager(List<Manager> managers, String managerName) {
+		List<Manager> list = managers.stream().filter(a -> a.getManagerName().equals(managerName))
+				.collect(Collectors.toList());
+		if (list.size() > 0)
+			return list.get(0);
+		return new Manager(managerName);
+	}
+
+}
