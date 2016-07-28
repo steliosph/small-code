@@ -20,10 +20,10 @@ public class CalculatePowerOfTwo  {
 	public long calculateSum(int times) {
 		// The most efficient way is to calculate 2^n+1−2
 		long result = 2;
-		for (int i = 1; i <= times; i++) {
+		for (int count = 1; count <= times; count++)
 			result *= 2;
-		}
-		long answer = result = result = 2;
+		
+		long answer = result - 2;
 		System.out.println("calculateSum:" + answer);
 
 		return answer;
